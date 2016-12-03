@@ -1,23 +1,16 @@
 package service;
 
 import static util.GerenciadorJson.gerarJson;
-import static util.Validacao.verificarEmail;
-import static util.Validacao.verificarSenha;
+import static util.Validacao.verificarUsuario;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -62,7 +55,7 @@ public class UsuarioWS extends Application {
 	@GET
 	@Path("login/{email}/{senha}")
 	public Response acessoAplicacao(@PathParam("email") String email, @PathParam("senha") String senha) {
-		if (verificarEmail(email) && verificarSenha(senha)) {
+		if (verificarUsuario(email, senha)) {
 			return Response.status(Response.Status.OK).entity(gerarJson(dao.buscar(email)))
 					.header("Access-Control-Allow-Origin", "*").build();
 		} else {
@@ -71,33 +64,11 @@ public class UsuarioWS extends Application {
 		}
 	}
 
-	/*
-	 * @POST
-	 * 
-	 * @Path("login")
-	 * 
-	 * @Consumes("application/json")
-	 * 
-	 * @Produces("application/json") public Response acessoAplicacao(Usuario
-	 * user) { if (verificarEmail(user.getEmail()) &&
-	 * verificarSenha(user.getSenha())) { return
-	 * Response.status(Response.Status.OK).entity(gerarJson(dao.buscar(user.
-	 * getEmail()))).build(); } else { return
-	 * Response.status(Response.Status.UNAUTHORIZED).entity(Response.Status.
-	 * UNAUTHORIZED.toString()) .build(); } }
-	 */
-
 	@GET
 	@Path("consulta/{dado}/{tipo}")
 	public Response usuarios(@PathParam("dado") String dado, @PathParam("tipo") Integer tipo) {
 		List<Usuario> usuarios = dao.listarUsuarios();
 		List<Usuario> retorno = new ArrayList<>();
-		/*
-		 * usuario = new Usuario(); usuario.setNome("teste");
-		 * usuarios.add(usuario); usuario = new Usuario();
-		 * usuario.setNome("Fernando"); usuario.setCpf("123456");
-		 * usuarios.add(usuario);
-		 */
 		System.out.println("chamou");
 		if (tipo == 1) {
 			usuarios.forEach(n -> {
@@ -106,9 +77,13 @@ public class UsuarioWS extends Application {
 				}
 			});
 		}
-		// if (tipo == 2) {usuarios.forEach(n -> {if
-		// (n.getDataNascimento().equalsIgnoreCase(dado)) {retorno.add(n);}});}
-		else if (tipo == 3) {
+		if (tipo == 2) {
+			usuarios.forEach(n -> {
+				if (n.getDataNascimento().equals(dado)) {
+					retorno.add(n);
+				}
+			});
+		} else if (tipo == 3) {
 			usuarios.forEach(n -> {
 				if (n.getEmail() != null && n.getEmail().equalsIgnoreCase(dado)) {
 					retorno.add(n);
